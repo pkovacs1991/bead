@@ -1,7 +1,11 @@
 {% extends 'master' %}
+         
 
 {% block title %}Kezdőlap{% endblock %}
+         
+
 {% block content %}
+  {% if currentUser %}
   <form action="{{ 'recipe_list' | route }}" method="GET">
     <div class="input-group search-box">
       <input type="text" class="form-control" placeholder="Keresés..." name="recipeName">
@@ -10,6 +14,7 @@
       </span>
     </div>
   </form>
+   
   {% for categoryBatch in categories | batch(3) %}
   <div class="row">
     {% for category in categoryBatch %}
@@ -29,4 +34,12 @@
     {% endfor %}
   </div>
   {% endfor %}
+
+  {% else %}
+  <div>A tárgyfelvételhez be kell jelentkezni</div>
+  {% endif %}
 {% endblock %}
+
+
+
+

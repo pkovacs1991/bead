@@ -113,7 +113,7 @@
                 "control": {
                     "text": true
                 },
-                "type": "varchar(30)",
+                "type": "varchar(50)",
                 "allowNull": false,
                 "defaultValue": null,
                 "listview": {
