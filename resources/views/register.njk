@@ -1,0 +1,57 @@
+{% extends 'master' %}
+
+{% block title %}Regisztráció{% endblock %}
+{% block content %}
+  <h1>Regisztráció</h1>
+  {% if old('errors') %}
+  <div class="alert alert-danger" role="alert">Sikertelen regisztrációs kísérlet:
+    <ul>
+      {% for error in old('errors') %}
+      <li>{{ error.message }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+  <div class="row">
+    <div class="col-md-6 col-md-offset-3">
+      <form class="form-horizontal" action="{{ 'do_register' | route }}" method="POST">
+        {{ csrfField }}
+        <div class="form-group">
+          <label for="inputEmail" class="col-sm-4 control-label">Felhasználónév</label>
+          <div class="col-sm-8">
+            <input type="text" class="form-control" id="inputEmail" name="username" placeholder="Felhasználónév" value="{{ old('username') }}">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputNickname" class="col-sm-4 control-label">Megjelenített név</label>
+          <div class="col-sm-8">
+            <input type="text" class="form-control" id="inputNickname" name="nickname" placeholder="Megjelenített név" value="{{ old('nickname') }}">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail" class="col-sm-4 control-label">E-mail cím</label>
+          <div class="col-sm-8">
+            <input type="email" class="form-control" id="inputEmail" name="email" placeholder="E-mail cím" value="{{ old('email') }}">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputPassword" class="col-sm-4 control-label">Jelszó</label>
+          <div class="col-sm-8">
+            <input type="password" class="form-control" id="inputPassword" name="password" placeholder="Jelszó">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputPasswordAgain" class="col-sm-4 control-label">Jelszó ismét</label>
+          <div class="col-sm-8">
+            <input type="password" class="form-control" id="inputPasswordAgain" name="password_again" placeholder="Jelszó">
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-sm-offset-4 col-sm-8">
+            <button type="submit" class="btn btn-success">Regisztráció</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends 'master' %}
+
+{% block title %}{{ recipe.name }}{% endblock %}
+{% block content %}
+  <h1>{{ recipe.name }}</h1>
+  <p><a href="{{ 'recipe_list' | route }}?category={{ recipe.category.id }}">{{ recipe.category.name }}</a> · beküldte <em>{{ recipe.created_by.nickname }}</em></p>
+  {% if recipeImage %}
+  <img src="{{ recipeImage }}">
+  {% endif %}
+  <h2>Hozzávalók</h2>
+  <pre>{{ recipe.ingredients }}</pre>
+  <h2>Leírás</h2>
+  <p>{{ recipe.description }}</p>
+  {% if currentUser %}
+  {% if currentUser.id == recipe.created_by.id %}
+  <div>
+    <a class="btn btn-primary" href="{{ 'recipe_edit' | route({id: recipe.id}) }}">Módosítás</a>
+    <a class="btn btn-danger" href="{{ 'recipe_delete' | route({id: recipe.id}) }}">Törlés</a>
+  </div>
+  {% endif %}
+  {% endif %}
+{% endblock %}

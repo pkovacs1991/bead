@@ -1,0 +1,86 @@
+{% extends 'master' %}
+
+{% block title %}Receptek böngészése{% endblock %}
+{% block content %}
+  <h1>Receptek böngészése</h1>
+  <form action="{{ 'recipe_list' | route }}" method="GET">
+    <div class="row">
+      <div class="col-md-3">
+        <div class="form-group">
+          <label for="inputRecipeName">Recept neve</label>
+          <input type="text" class="form-control" placeholder="Recept neve" id="inputRecipeName" name="recipeName" value="{{ filters.recipeName }}">
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="form-group">
+          <label for="inputCategory">Kategória</label>
+          <select class="form-control" id="inputCategory" name="category">
+            <option value="">--</option>
+            {% for category in categories %}
+            {% if filters.category == category.id %}
+            <option value="{{ category.id }}" selected>{{ category.name }}</option>
+            {% else %}
+            <option value="{{ category.id }}">{{ category.name }}</option>
+            {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="form-group">
+          <label for="inputCreatedBy">Beküldte</label>
+          <select class="form-control" id="inputCreatedBy" name="createdBy">
+            <option value="">--</option>
+            {% for user in users %}
+            {% if filters.createdBy == user.id %}
+            <option value="{{ user.id }}" selected>{{ user.nickname }}</option>
+            {% else %}
+            <option value="{{ user.id }}">{{ user.nickname }}</option>
+            {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <button class="btn btn-block btn-primary" type="submit">Szűrés</button>
+        </div>
+      </div>
+    </div>
+  </form>
+  <h2>Találatok ({{ recipes.total }})</h2>
+  {% for recipeBatch in recipes.data | batch(3) %}
+  <div class="row">
+    {% for recipe in recipeBatch %}
+    <div class="col-md-4">
+      <a class="result-item" href="{{ 'recipe_page' | route({ id: recipe.id }) }}">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <strong>{{ recipe.name }}</strong><br>
+            beküldte <em>{{ recipe.created_by.nickname }}</em>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  Nincs a szűrésnek megfelelő recept.
+  {% endfor %}
+  {% if recipes.lastPage > 1 %}
+  <div class="text-center">
+    <ul class="pagination">
+      {% for page in range(1, recipes.lastPage + 1) %}
+      {% if page == recipes.currentPage %}
+      <li class="active">
+        <a href="{{ 'recipe_list' | route }}?p={{ page }}&amp;recipeName={{ filters.recipeName }}&amp;category={{ filters.category }}&amp;createdBy={{ filters.createdBy }}">{{ page }}</a>
+      </li>
+      {% else %}
+      <li><a href="{{ 'recipe_list' | route }}?p={{ page }}&amp;recipeName={{ filters.recipeName }}&amp;category={{ filters.category }}&amp;createdBy={{ filters.createdBy }}">{{ page }}</a></li>
+      {% endif %}
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+{% endblock %}

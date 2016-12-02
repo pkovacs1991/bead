@@ -1,0 +1,32 @@
+{% extends 'master' %}
+
+{% block title %}Kezdőlap{% endblock %}
+{% block content %}
+  <form action="{{ 'recipe_list' | route }}" method="GET">
+    <div class="input-group search-box">
+      <input type="text" class="form-control" placeholder="Keresés..." name="recipeName">
+      <span class="input-group-btn">
+        <button class="btn btn-info" type="submit">Mehet!</button>
+      </span>
+    </div>
+  </form>
+  {% for categoryBatch in categories | batch(3) %}
+  <div class="row">
+    {% for category in categoryBatch %}
+    <div class="col-md-4">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          {{ category.name }}
+          <a href="{{ 'recipe_list' | route }}?category={{ category.id }}" class="btn btn-warning btn-xs pull-right">Összes megtekintése</a>
+        </div>
+        <div class="list-group">
+          {% for recipe in category.latestRecipes %}
+          <a href="{{ 'recipe_page' | route({id: recipe.id}) }}" class="list-group-item">{{ recipe.name }}</a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endfor %}
+{% endblock %}

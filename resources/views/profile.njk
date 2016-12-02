@@ -1,0 +1,83 @@
+{% extends 'master' %}
+
+{% block title %}Saját profil megtekintése{% endblock %}
+{% block content %}
+  <h1>Saját profil megtekintése</h1>
+  <div>
+    <a class="btn btn-info" href="{{ 'recipe_list' | route }}?createdBy={{ currentUser.id }}">Saját receptek megtekintése</a>
+  </div>
+  {% if old('errors') %}
+  <br>
+  <div class="alert alert-danger" role="alert">Hiba történt a feldolgozás közben:
+    <ul>
+      {% for error in old('errors') %}
+      <li>{{ error.message }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+  {% if old('success') %}
+  <br>
+  <div class="alert alert-success" role="alert">{{ old('success')}}</div>
+  {% endif %}
+  <div class="row">
+    <div class="col-md-6">
+      <h2>Adatok módosítása</h2>
+      <form class="form-horizontal" action="{{ 'do_profile_edit' | route }}" method="POST">
+        {{ csrfField }}
+        <div class="form-group">
+          <label for="inputUsername" class="col-sm-4 control-label">Felhasználónév</label>
+          <div class="col-sm-8">
+            <input type="text" class="form-control" id="inputUsername" name="username" placeholder="Felhasználónév" value="{{ currentUser.username }}">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputNickname" class="col-sm-4 control-label">Megjelenítési név</label>
+          <div class="col-sm-8">
+            <input type="text" class="form-control" id="inputNickname" name="nickname" placeholder="Megjelenítési név" value="{{ currentUser.nickname }}">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputEmail" class="col-sm-4 control-label">E-mail cím</label>
+          <div class="col-sm-8">
+            <input type="text" class="form-control" id="inputEmail" name="email" placeholder="E-mail cím" value="{{ currentUser.email }}">
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-sm-offset-4 col-sm-8">
+            <button type="submit" class="btn btn-success">Mentés</button>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="col-md-6">
+      <h2>Jelszó módosítása</h2>
+      <form class="form-horizontal" action="{{ 'do_password_edit' | route }}" method="POST">
+        {{ csrfField }}
+        <div class="form-group">
+          <label for="inputOldPassword" class="col-sm-4 control-label">Aktuális jelszó</label>
+          <div class="col-sm-8">
+            <input type="password" class="form-control" id="inputOldPassword" name="old_password" placeholder="Aktuális jelszó" value="">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputNewPassword" class="col-sm-4 control-label">Új jelszó</label>
+          <div class="col-sm-8">
+            <input type="password" class="form-control" id="inputNewPassword" name="new_password" placeholder="Új jelszó" value="">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputNewPasswordAgain" class="col-sm-4 control-label">Új jelszó ismét</label>
+          <div class="col-sm-8">
+            <input type="password" class="form-control" id="inputNewPasswordAgain" name="new_password_again" placeholder="Új jelszó ismét" value="">
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-sm-offset-4 col-sm-8">
+            <button type="submit" class="btn btn-success">Mentés</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}
