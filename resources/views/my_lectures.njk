@@ -1,0 +1,40 @@
+{% extends 'master' %}
+
+{% block title %}Tárgyak böngészése{% endblock %}
+{% block content %}
+  <h1>Felvett tárgyaim</h1>
+ 
+  <h2>Felvett tárgyaim száma ({{ myLectures.length }})</h2>
+  {% for lectureBatch in myLectures | batch(3) %}
+  <div class="row">
+    {% for lecture in lectureBatch %}
+    <div class="col-md-4">
+      <a class="result-item" href="{{ 'lecture_page' | route({ id: lecture.id }) }}">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <strong>{{ lecture.name }}</strong>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+    {% else %}
+  Nincs a szűrésnek megfelelő tárgy.
+  {% endfor %}
+  {% if myLectures.lastPage > 1 %}
+  <div class="text-center">
+    <ul class="pagination">
+      {% for page in range(1, myLectures.lastPage + 1) %}
+      {% if page == myLectures.currentPage %}
+      <li class="active">
+        <a href="{{ 'my_lecture_list' | route }}?p={{ page }}">{{ page }}</a>
+      </li>
+      {% else %}
+      <li><a href="{{ 'my_lecture_list' | route }}?p={{ page }}">{{ page }}</a></li>
+      {% endif %}
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+{% endblock %}

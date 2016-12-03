@@ -1,0 +1,71 @@
+{% extends 'master' %}
+
+{% block title %}Tárgyak böngészése{% endblock %}
+{% block content %}
+  <h1>Tárgyak böngészése</h1>
+  <form action="{{ 'lecture_list' | route }}" method="GET">
+    <div class="row">
+      <div class="col-md-3">
+        <div class="form-group">
+          <label for="inputLectureName">Tárgyak neve</label>
+          <input type="text" class="form-control" placeholder="Tárgyak neve" id="inputLectureName" name="lectureName" value="{{ filters.lectureName }}">
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="form-group">
+          <label for="inputFaculty">Kategória</label>
+          <select class="form-control" id="inputFaculty" name="faculty">
+            <option value="">--</option>
+            {% for faculty in faculties %}
+            {% if filters.faculty == faculty.id %}
+            <option value="{{ faculty.id }}" selected>{{ faculty.name }}</option>
+            {% else %}
+            <option value="{{ faculty.id }}">{{ faculty.name }}</option>
+            {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+     
+      <div class="col-md-3">
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <button class="btn btn-block btn-primary" type="submit">Szűrés</button>
+        </div>
+      </div>
+    </div>
+  </form>
+  <h2>Találatok ({{ lectures.total }})</h2>
+  {% for lectureBatch in lectures.data | batch(3) %}
+  <div class="row">
+    {% for lecture in lectureBatch %}
+    <div class="col-md-4">
+      <a class="result-item" href="{{ 'lecture_page' | route({ id: lecture.id }) }}">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <strong>{{ lecture.name }}</strong>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  Nincs a szűrésnek megfelelő tárgy.
+  {% endfor %}
+  {% if lectures.lastPage > 1 %}
+  <div class="text-center">
+    <ul class="pagination">
+      {% for page in range(1, lectures.lastPage + 1) %}
+      {% if page == lectures.currentPage %}
+      <li class="active">
+        <a href="{{ 'lecture_list' | route }}?p={{ page }}&amp;lectureName={{ filters.lectureName }}&amp;faculty={{ filters.faculty }}&amp;createdBy={{ filters.createdBy }}">{{ page }}</a>
+      </li>
+      {% else %}
+      <li><a href="{{ 'lecture_list' | route }}?p={{ page }}&amp;lectureName={{ filters.lectureName }}&amp;faculty={{ filters.faculty }}&amp;createdBy={{ filters.createdBy }}">{{ page }}</a></li>
+      {% endif %}
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+{% endblock %}

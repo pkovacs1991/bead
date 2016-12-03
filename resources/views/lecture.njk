@@ -1,22 +1,37 @@
 {% extends 'master' %}
 
-{% block title %}{{ recipe.name }}{% endblock %}
+{% block title %}{{ lecture.name }}{% endblock %}
 {% block content %}
-  <h1>{{ recipe.name }}</h1>
-  <p><a href="{{ 'recipe_list' | route }}?category={{ recipe.category.id }}">{{ recipe.category.name }}</a> · beküldte <em>{{ recipe.created_by.nickname }}</em></p>
-  {% if recipeImage %}
-  <img src="{{ recipeImage }}">
+  <h2>{{ lecture.name }}</h2>
+  
+  <h3>Kar</h3>
+  {{ faculty.name }}
+  <h3>Tárgy helye</h3>
+  <p>{{ lecture.place }}</p>
+  <h3>Tárgy időpontja</h3>
+  <p>{{ lecture.time }}</p>
+  <h3>Tárgy maximális férőhelye</h3>
+  <p>{{ lecture.max }}</p>
+  <h3>Felhasználók akik felvették ezt a tárgyat:</h3>
+  {% for user in users %}
+  <p>{{user.username}}
+  {% if( currentUser.isadmin == 'true') %}
+  <a class="btn btn-danger" href="{{ 'drop_user_lecture' | route({id: lecture.id , user_id : user.id}) }}">Tárgyról lejelentkezteteés</a>
+  </p> 
   {% endif %}
-  <h2>Hozzávalók</h2>
-  <pre>{{ recipe.ingredients }}</pre>
-  <h2>Leírás</h2>
-  <p>{{ recipe.description }}</p>
+  {% endfor %}
   {% if currentUser %}
-  {% if currentUser.id == recipe.created_by.id %}
+  
   <div>
-    <a class="btn btn-primary" href="{{ 'recipe_edit' | route({id: recipe.id}) }}">Módosítás</a>
-    <a class="btn btn-danger" href="{{ 'recipe_delete' | route({id: recipe.id}) }}">Törlés</a>
+    {% if( takedClass.length == 0) %}
+    <a class="btn btn-primary" href="{{ 'assign_lecture' | route({id: lecture.id}) }}">Tárgy felvétele</a>
+    {% else %}
+    <a class="btn btn-primary" href="{{ 'drop_lecture' | route({id: lecture.id}) }}">Tárgy leadása</a>
+    {% endif %}
+    {% if( currentUser.isadmin == 'true') %}
+    <a class="btn btn-primary" href="{{ 'lecture_edit' | route({id: lecture.id}) }}">Módosítás</a>
+    <a class="btn btn-danger" href="{{ 'lecture_delete' | route({id: lecture.id}) }}">Törlés</a>
+    {% endif %}
   </div>
-  {% endif %}
   {% endif %}
 {% endblock %}

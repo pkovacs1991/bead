@@ -1,7 +1,8 @@
 'use strict'
-
+const Database = use('Database')
 const Faculty = use('App/Model/Faculty')
 const Lecture = use('App/Model/Lecture')
+const UserLecture = use('App/Model/UserLecture')
 const User = use('App/Model/User')
 const Validator = use('Validator')
 const Helpers = use('Helpers')
@@ -38,29 +39,52 @@ class LectureController {
   * index (request, response) {
     const page = Math.max(1, request.input('p'))
     const filters = {
-      recipeName: request.input('recipeName') || '',
-      category: request.input('category') || 0,
-      createdBy: request.input('createdBy') || 0
+      lectureName: request.input('lectureName') || '',
+      faculty: request.input('faculty') || 0
     }
 
-    const recipes = yield Recipe.query()
-      .active()
+    const lectures = yield Lecture.query()
       .where(function () {
-        if (filters.category > 0) this.where('category_id', filters.category)
-        if (filters.createdBy > 0) this.where('created_by_id', filters.createdBy)
-        if (filters.recipeName.length > 0) this.where('name', 'LIKE', `%${filters.recipeName}%`)
+        if (filters.faculty > 0) this.where('faculty_id', filters.faculty)
+        if (filters.lectureName.length > 0) this.where('name', 'LIKE', `%${filters.lectureName}%`)
       })
-      .with('created_by')
+
       .paginate(page, 9)
 
-    const categories = yield Category.all()
+    const faculties = yield Faculty.all()
     const users = yield User.all()
 
-    yield response.sendView('recipes', {
-      recipes: recipes.toJSON(),
-      categories: categories.toJSON(),
+    yield response.sendView('lectures', {
+      lectures: lectures.toJSON(),
+      faculties: faculties.toJSON(),
       users: users.toJSON(),
       filters
+    })
+  }
+
+ /**
+   *
+   */
+  * myLectures (request, response) {
+    const page = Math.max(1, request.input('p'))
+    
+    const myLecturesId = yield UserLecture.query()
+      .where({'user_id': request.currentUser.id})
+      .select('lecture_id')
+      .paginate(page,9)
+
+    var myLectures = []  
+      for (let lectureId of myLecturesId) {
+      const lecture = yield Lecture.find(lectureId.lecture_id)
+
+      myLectures.push(lecture)
+    }
+
+    
+
+    yield response.sendView('my_lectures', {
+      myLectures: myLectures,
+     
     })
   }
 
@@ -124,20 +148,30 @@ class LectureController {
    *
    */
   * show (request, response) {
-    const recipeId = request.param('id')
-    const recipe = yield Recipe.find(recipeId)
+    const lectureId = request.param('id')
+    const lecture = yield Lecture.find(lectureId)
+    const faculty = yield Faculty.find(lecture.faculty_id);
+    const takedClass = yield Database
+      .table('user_lectures')
+      .where({'user_id': request.currentUser.id,'lecture_id': lectureId})
+      .select('id')
+    
+    const usersTakedLecture = yield Database
+      .table('user_lectures')
+      .where({'lecture_id': lectureId})
+      .select('user_id')
 
-    if (recipe) {
-      yield recipe.related('category').load()
-      yield recipe.related('created_by').load()
+    var users = []  
+    for (let userId of usersTakedLecture) {
+      const user = yield User.find(userId.user_id)
+      users.push(user)
 
-      const fileName = `/images/${recipe.id}.jpg`
-      const imageExists = yield fileExists(`${Helpers.publicPath()}/${fileName}`)
-      const recipeImage = imageExists ? fileName : false
+    }
 
-      yield response.sendView('recipe', { recipe: recipe.toJSON(), recipeImage })
+    if (lecture) {
+      yield response.sendView('lecture', { lecture: lecture.toJSON(),faculty : faculty,takedClass : takedClass, users : users })
     } else {
-      response.notFound('Recipe not found.')
+      response.notFound('Lecture not found.')
     }
   }
 
@@ -145,49 +179,48 @@ class LectureController {
    *
    */
   * edit (request, response) {
-    const recipeId = request.param('id')
-    const recipe = yield Recipe.find(recipeId)
-
+    const lectureId = request.param('id')
+    const lecture = yield Lecture.find(lectureId)
+    
 	
-    if (!recipe || recipe.deleted == true) {
-	  yield response.notFound('Recipe not found.')
+    if (!lecture) {
+	  yield response.notFound('Lecture not found.')
 	  return;
     } 
 	
-    if (recipe.created_by_id !== request.currentUser.id) {
+    if (request.currentUser.isadmin != "true") {
       response.unauthorized('Access denied.')
     }
 
-    yield recipe.related('category').load()
-    yield recipe.related('created_by').load()
+    console.log(lecture.faculty_id)
+    const faculties = yield Faculty.all()
 
-    const categories = yield Category.all()
-
-    yield response.sendView('recipe_edit', { categories: categories.toJSON(), recipe: recipe.toJSON() })
+    yield response.sendView('lecture_edit', { faculties: faculties.toJSON(), lecture: lecture.toJSON() })
   }
 
   /**
    *
    */
   * doEdit (request, response) {
-    const recipeId = request.param('id')
-    const recipe = yield Recipe.find(recipeId)
+    const lectureId = request.param('id')
+    const lecture = yield Lecture.find(lectureId)
 
-    if (!recipe || recipe.deleted) {
-	  yield response.notFound('Recipe not found.')
+    if (!lecture ) {
+	  yield response.notFound('Lecture not found.')
 	  return;
     } 
 	
-    if (recipe.created_by_id !== request.currentUser.id) {
-      yield response.unauthorized('Access denied.')
-	  return;
+    if (request.currentUser.isadmin != "true") {
+      response.unauthorized('Access denied.')
     }
 	  
-    const recipeData = request.all()
-    const validation = yield Validator.validateAll(recipeData, {
+    const lectureData = request.all()
+     const validation = yield Validator.validateAll(lectureData, {
       name: 'required',
-      description: 'required',
-      ingredients: 'required'
+      faculty: 'required',
+      place: 'required',
+      time: 'required',
+      max: 'required',
     })
 
     if (validation.fails()) {
@@ -195,42 +228,31 @@ class LectureController {
         .with({ errors: validation.messages() })
         .flash()
 
-      yield response.route('recipe_edit', {id: recipe.id})
+      yield response.route('lecture_edit', {id: lecture.id})
 	  return;
     } 
-      const category = yield Category.find(recipeData.category)
+    const faculty = yield Faculty.find(lectureData.faculty)
 
-    if (!category) {
+    if (!faculty) {
       yield request
-        .with({ errors: [{ message: 'category doesn\'t exist' }] })
+        .withAll()
+        .andWith({ errors: [{ message: 'Faculty doesn\'t exist' }] })
         .flash()
 
-      yield response.route('recipe_edit', {id: recipe.id})
+       yield response.route('lecture_edit', {id: lecture.id})
 	  return;
-    } 
-    const recipeImage = request.file('image', { maxSize: '1mb', allowedExtensions: ['jpg', 'JPG'] })
-
-    if (recipeImage.clientSize() > 0) {
-      yield recipeImage.move(Helpers.publicPath() + '/images', `${recipe.id}.jpg`)
-
-      if (!recipeImage.moved()) {
-        yield request
-          .with({ errors: [{ message: recipeImage.errors() }] })
-          .flash()
-
-        response.route('recipe_edit', {id: recipe.id})
-        return
-      }
     }
+  
 
-    recipe.name = recipeData.name
-    recipe.description = recipeData.description
-    recipe.ingredients = recipeData.ingredients
-    recipe.category_id = recipeData.category
+    lecture.name = lectureData.name
+    lecture.place = lectureData.place
+    lecture.time = lectureData.time
+    lecture.max = lectureData.max
+    lecture.faculty_id = lectureData.faculty
 
-    yield recipe.update()
+    yield lecture.update()
 
-    response.route('recipe_page', { id: recipe.id })
+    response.route('lecture_page', { id: lecture.id })
     
   }
 
@@ -238,22 +260,87 @@ class LectureController {
    *
    */
   * doDelete (request, response) {
-    const recipeId = request.param('id')
-    const recipe = yield Recipe.find(recipeId)
+    const lectureId = request.param('id')
+    const lecture = yield Lecture.find(lectureId)
 
-    if (recipe) {
-      if (recipe.created_by_id !== request.currentUser.id) {
-        response.unauthorized('Access denied.')
-      }
+    if (lecture) {
+      if (request.currentUser.isadmin != "true") {
+      response.unauthorized('Access denied.')
+     }
 
-      recipe.deleted = true
-      yield recipe.update()
+      yield lecture.delete()
 
       response.route('main')
     } else {
-      response.notFound('Recipe not found.')
+      response.notFound('Lecture not found.')
     }
   }
+
+
+/**
+   *
+   */
+  * assignLecture (request, response) {
+    const lectureId = request.param('id')
+    const lecture = yield Lecture.find(lectureId)
+
+    if (lecture) {
+     
+     const userLecture = new UserLecture()   
+    
+     userLecture.user_id = request.currentUser.id
+     userLecture.lecture_id = lectureId
+
+     yield userLecture.save()
+
+      response.route('lecture_page', { id: lecture.id })
+    } else {
+      response.notFound('Lecture not found.')
+    }
+  }
+
+
+/**
+   *
+   */
+  * dropLecture (request, response) {
+    const lectureId = request.param('id')
+    const userId = request.param('user_id')
+    const lecture = yield Lecture.find(lectureId)
+
+    
+
+    if (lecture) {
+    var userLectureId = []
+    if(userId != null) {
+        userLectureId = yield Database
+      .table('user_lectures')
+      .where({'user_id': userId,'lecture_id': lectureId})
+      .select('id')
+
+    } else {
+      userLectureId = yield Database
+      .table('user_lectures')
+      .where({'user_id': request.currentUser.id,'lecture_id': lectureId})
+      .select('id')
+    }
+
+    if(userLectureId.length > 0) {
+      const userLecture = yield UserLecture.find(userLectureId[0].id)
+
+      yield userLecture.delete()
+    } else {
+      response.notFound('Lecture assign not found.')
+
+    }
+
+
+      response.route('lecture_page', { id: lecture.id })
+    } else {
+      response.notFound('Lecture not found.')
+    }
+  }
+
 }
 
 function fileExists(fileName) {

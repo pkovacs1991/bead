@@ -27,7 +27,8 @@
           <ul class="nav navbar-nav">
          
             {% if currentUser %}
-            <li><a href="{{ 'recipe_list' | route }}">Tárgyak böngészése</a></li>
+            <li><a href="{{ 'my_lecture_list' | route }}">Felvett tárgyaim</a></li>
+            <li><a href="{{ 'lecture_list' | route }}">Tárgyak böngészése</a></li>
             {% endif %}
             {% if( currentUser.isadmin == 'true') %}
             <li><a href="{{ 'lecture_create' | route }}">Tárgy létrehozása</a></li>
