@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
-    <title>{% block title %}{% endblock %} - Receptkönyv</title>
+    <title>{% block title %}{% endblock %} - Tárgyfelvétel</title>
     <link rel="icon" href="favicon.png" type="image/x-icon">
     <link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/sandstone/bootstrap.min.css" rel="stylesheet" integrity="sha384-G3G7OsJCbOk1USkOY4RfeX1z27YaWrZ1YuaQ5tbuawed9IoreRDpWpTkZLXQfPm3" crossorigin="anonymous">
     <link href="/style.css" rel="stylesheet">
@@ -29,14 +29,20 @@
             {% if currentUser %}
             <li><a href="{{ 'recipe_list' | route }}">Tárgyak böngészése</a></li>
             {% endif %}
+            {% if( currentUser.isadmin == 'true') %}
+            <li><a href="{{ 'lecture_create' | route }}">Tárgy létrehozása</a></li>
+            {% endif %}
           </ul>
           <ul class="nav navbar-nav navbar-right">
             {% if currentUser %}
+              {% if( currentUser.isadmin == 'true')  %}
+                  <li><a href="{{ 'register' | route }}">Felhasználó Regisztrálása</a></li>
+              {% endif %}  
             <li><a href="{{ 'profile' | route }}">Profil megtekintése</a></li>
             <li><a href="{{ 'do_logout' | route }}">Kilépés</a></li>
             {% else %}
             <li><a href="{{ 'login' | route }}">Belépés</a></li>
-            <li><a href="{{ 'register' | route }}">Regisztráció</a></li>
+            
             {% endif %}
           </ul>
         </div>

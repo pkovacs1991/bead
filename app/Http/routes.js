@@ -28,9 +28,9 @@ Route.post('/profile/edit_password', 'UserController.doPasswordEdit').as('do_pas
 
 Route.get('/', 'LectureController.main').as('main')
 Route.get('/recipe', 'RecipeController.index').as('recipe_list')
-Route.get('/recipe/create', 'RecipeController.create').as('recipe_create').middleware('auth')
-Route.post('/recipe/create', 'RecipeController.doCreate').as('do_recipe_create').middleware('auth')
-Route.get('/recipe/:id', 'RecipeController.show').as('recipe_page')
+Route.get('/lecture/create', 'LectureController.create').as('lecture_create').middleware('auth')
+Route.post('/lecture/create', 'LectureController.doCreate').as('do_lecture_create').middleware('auth')
+Route.get('/lecture/:id', 'LectureController.show').as('lecture_page')
 Route.get('/recipe/:id/edit', 'RecipeController.edit').as('recipe_edit')
 Route.post('/recipe/:id/edit', 'RecipeController.doEdit').as('do_recipe_edit')
 Route.get('/recipe/:id/delete', 'RecipeController.doDelete').as('recipe_delete')

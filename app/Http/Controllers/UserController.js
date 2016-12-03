@@ -55,13 +55,10 @@ class UserController {
     const user = new User()
     user.username = userData.username
     user.email = userData.email
+    user.isadmin = userData.isAdmin
     user.password = yield Hash.make(userData.password)
-    user.isadmin = "false"
     
     yield user.save()
-
-    yield request.auth.login(user)
-    
     response.route('register')
   }
 
@@ -89,11 +86,10 @@ class UserController {
    *
    */
   * register (request, response) {
-    if (request.currentUser) {
+    if (request.currentUser.isadmin != "true") {
       response.route('main')
       return
     }
-
     yield response.sendView('register')
   }
 

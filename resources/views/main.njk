@@ -5,10 +5,11 @@
          
 
 {% block content %}
+
   {% if currentUser %}
-  <form action="{{ 'recipe_list' | route }}" method="GET">
+  <form action="{{ 'lecture_list' | route }}" method="GET">
     <div class="input-group search-box">
-      <input type="text" class="form-control" placeholder="Keresés..." name="recipeName">
+      <input type="text" class="form-control" placeholder="Keresés..." name="lectureName">
       <span class="input-group-btn">
         <button class="btn btn-info" type="submit">Mehet!</button>
       </span>
@@ -17,16 +18,16 @@
    
   {% for facultyBatch in faculties | batch(3) %}
   <div class="row">
-    {% for category in categoryBatch %}
+    {% for faculty in facultyBatch %}
     <div class="col-md-4">
       <div class="panel panel-default">
         <div class="panel-heading">
-          {{ category.name }}
-          <a href="{{ 'recipe_list' | route }}?category={{ category.id }}" class="btn btn-warning btn-xs pull-right">Összes megtekintése</a>
+          {{ faculty.name }}
+          <a href="{{ 'lecture_list' | route }}?faculty={{ faculty.id }}" class="btn btn-warning btn-xs pull-right">Összes megtekintése</a>
         </div>
         <div class="list-group">
-          {% for recipe in category.latestRecipes %}
-          <a href="{{ 'recipe_page' | route({id: recipe.id}) }}" class="list-group-item">{{ recipe.name }}</a>
+          {% for lecture in faculty.latestLectures %}
+          <a href="{{ 'lecture_page' | route({id: lecture.id}) }}" class="list-group-item">{{ lecture.name }}</a>
           {% endfor %}
         </div>
       </div>

@@ -17,9 +17,12 @@ class LectureController {
 
     // for each faculty load the last 3 lectures
     for (let faculty of faculties) {
-      const latestLectures = yield faculty.lectures().active().orderBy('id', 'desc').limit(3).fetch()
+      
+      const latestLectures = yield faculty.lectures().orderBy('id', 'desc').limit(3).fetch()
+      
       faculty.latestLectures = latestLectures.toJSON()
     }
+
 
     yield response.sendView('main', {
       faculties: faculties
@@ -65,20 +68,23 @@ class LectureController {
    *
    */
   * create (request, response) {
-    const categories = yield Category.all()
+    const faculties = yield Faculty.all()
 
-    yield response.sendView('recipe_create', { categories: categories.toJSON() })
+
+    yield response.sendView('lecture_create', { faculties: faculties.toJSON() })
   }
 
   /**
    *
    */
   * doCreate (request, response) {
-    const recipeData = request.all()
-    const validation = yield Validator.validateAll(recipeData, {
+    const lectureData = request.all()
+    const validation = yield Validator.validateAll(lectureData, {
       name: 'required',
-      description: 'required',
-      ingredients: 'required'
+      faculty: 'required',
+      place: 'required',
+      time: 'required',
+      max: 'required',
     })
 
     if (validation.fails()) {
@@ -87,45 +93,31 @@ class LectureController {
         .andWith({ errors: validation.messages() })
         .flash()
 
-      response.route('recipe_create')
+      response.route('lecture_create')
 	  return;
     }
-    const category = yield Category.find(recipeData.category)
+    const faculty = yield Faculty.find(lectureData.faculty)
 
-    if (!category) {
+    if (!faculty) {
       yield request
         .withAll()
-        .andWith({ errors: [{ message: 'category doesn\'t exist' }] })
+        .andWith({ errors: [{ message: 'Faculty doesn\'t exist' }] })
         .flash()
 
-      response.route('recipe_create')
+      response.route('lecture_create')
 	  return;
     }
 	
-    const recipeImage = request.file('image', { maxSize: '1mb', allowedExtensions: ['jpg', 'JPG'] })
+   
+    const lecture = new Lecture()
+    lecture.name = lectureData.name
+    lecture.place = lectureData.place
+    lecture.time = lectureData.time
+    lecture.max = lectureData.max
+    lecture.faculty_id = lectureData.faculty
+    yield lecture.save()
 
-    if (recipeImage.clientSize() > 0 && !recipeImage.validate()) {
-      yield request
-        .withAll()
-        .andWith({ errors: [{ message: recipeImage.errors() }] })
-        .flash()
-
-      response.route('recipe_create')
-      return
-    }
-
-    const recipe = new Recipe()
-    recipe.name = recipeData.name
-    recipe.description = recipeData.description
-    recipe.ingredients = recipeData.ingredients
-    recipe.category_id = recipeData.category
-    recipe.created_by_id = request.currentUser.id
-
-    // TODO: these lines should be executed atomically
-    yield recipe.save()
-    yield recipeImage.move(Helpers.publicPath() + '/images', `${recipe.id}.jpg`)
-
-    response.route('recipe_page', { id: recipe.id })
+   response.route('lecture_page', { id: lecture.id })
   }
 
   /**
