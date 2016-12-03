@@ -2,13 +2,13 @@
 
 const Lucid = use('Lucid')
 
-class Recipe extends Lucid {
-  static scopeActive (builder) {
+class Lecture extends Lucid {
+static scopeActive (builder) {
     builder.where('deleted', 0)
   }
 
-  category () {
-    return this.belongsTo('App/Model/Category')
+  faculty () {
+    return this.belongsTo('App/Model/Faculties')
   }
 
   created_by () {
@@ -16,4 +16,4 @@ class Recipe extends Lucid {
   }
 }
 
-module.exports = Recipe
+module.exports = Lecture

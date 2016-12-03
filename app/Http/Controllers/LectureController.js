@@ -1,29 +1,29 @@
 'use strict'
 
-const Category = use('App/Model/Category')
-const Recipe = use('App/Model/Recipe')
+const Faculty = use('App/Model/Faculty')
+const Lecture = use('App/Model/Lecture')
 const User = use('App/Model/User')
 const Validator = use('Validator')
 const Helpers = use('Helpers')
 const fs = use('fs')
 
-class RecipeController {
+class LectureController {
   /**
    *
    */
   * main (request, response) {
-    // load all categories
-    const categories = yield Category.all()
+    // load all faculties
+    const faculties = yield Faculty.all()
 
-    // for each category load the last 3 recipes
-    for (let category of categories) {
-      const latestRecipes = yield category.recipes().active().orderBy('id', 'desc').limit(3).fetch()
-      category.latestRecipes = latestRecipes.toJSON()
+    // for each faculty load the last 3 lectures
+    for (let faculty of faculties) {
+      const latestLectures = yield faculty.lectures().active().orderBy('id', 'desc').limit(3).fetch()
+      faculty.latestLectures = latestLectures.toJSON()
     }
 
     yield response.sendView('main', {
-      categories: categories
-        .filter(category => category.latestRecipes.length > 0)
+      faculties: faculties
+        .filter(faculty => faculty.latestLectures.length > 0)
         .toJSON()
     })
   }
@@ -273,4 +273,4 @@ function fileExists(fileName) {
   })
 }
 
-module.exports = RecipeController
+module.exports = LectureController

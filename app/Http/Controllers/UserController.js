@@ -37,7 +37,6 @@ class UserController {
     const validation = yield Validator.validateAll(userData, {
       username: 'required|alpha_numeric|unique:users',
       email: 'required|email|unique:users',
-      nickname: 'required|max:30',
       password: 'required|min:4',
       password_again: 'required|same:password'
     })
@@ -56,9 +55,9 @@ class UserController {
     const user = new User()
     user.username = userData.username
     user.email = userData.email
-    user.nickname = userData.nickname
     user.password = yield Hash.make(userData.password)
-
+    user.isadmin = "false"
+    
     yield user.save()
 
     yield request.auth.login(user)
@@ -155,7 +154,7 @@ class UserController {
   * doProfileEdit (request, response) {
     const userData = request.all()
     const user = request.currentUser
-    const rules = { nickname: 'required|max:30' }
+    const rules = {}
 
     if (userData.username !== user.username) {
       rules.username = 'required|alpha_numeric|unique:users'
@@ -178,7 +177,6 @@ class UserController {
 	
     user.username = userData.username
     user.email = userData.email
-    user.nickname = userData.nickname
 
     yield user.update()
 

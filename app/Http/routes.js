@@ -26,7 +26,7 @@ Route.get('/logout', 'UserController.doLogout').as('do_logout').middleware('auth
 Route.post('/profile/edit', 'UserController.doProfileEdit').as('do_profile_edit').middleware('auth')
 Route.post('/profile/edit_password', 'UserController.doPasswordEdit').as('do_password_edit').middleware('auth')
 
-Route.get('/', 'RecipeController.main').as('main')
+Route.get('/', 'LectureController.main').as('main')
 Route.get('/recipe', 'RecipeController.index').as('recipe_list')
 Route.get('/recipe/create', 'RecipeController.create').as('recipe_create').middleware('auth')
 Route.post('/recipe/create', 'RecipeController.doCreate').as('do_recipe_create').middleware('auth')
