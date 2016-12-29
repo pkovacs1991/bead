@@ -1,6 +1,10 @@
 {% extends 'master' %}
 
 {% block title %}{{ lecture.name }}{% endblock %}
+{% block scripts %}
+<script src="/scripts/ajax_lecture.js"></script>
+{% endblock %}
+
 {% block content %}
   <h2>{{ lecture.name }}</h2>
   
@@ -13,20 +17,22 @@
   <h3>Tárgy maximális férőhelye</h3>
   <p>{{ lecture.max }}</p>
   <h3>Felhasználók akik felvették ezt a tárgyat:</h3>
+   <div id="users-taked-class">
   {% for user in users %}
   <p>{{user.username}}
   {% if( currentUser.isadmin == 'true') %}
-  <a class="btn btn-danger" href="{{ 'drop_user_lecture' | route({id: lecture.id , user_id : user.id}) }}">Tárgyról lejelentkezteteés</a>
+  <a class="btn btn-danger drop-lecture" href="{{ 'drop_user_lecture' | route({id: lecture.id , user_id : user.id}) }}">Tárgyról lejelentkezteteés</a>
   </p> 
   {% endif %}
   {% endfor %}
+  </div>
   {% if currentUser %}
   
-  <div>
+  <div id=lecture-buttons>
     {% if( takedClass.length == 0) %}
-    <a class="btn btn-primary" href="{{ 'assign_lecture' | route({id: lecture.id}) }}">Tárgy felvétele</a>
+    <a class="btn btn-primary assign-lecture" href="{{ 'assign_lecture' | route({id: lecture.id}) }}">Tárgy felvétele</a>
     {% else %}
-    <a class="btn btn-primary" href="{{ 'drop_lecture' | route({id: lecture.id}) }}">Tárgy leadása</a>
+    <a class="btn btn-primary drop-lecture" href="{{ 'drop_lecture' | route({id: lecture.id}) }}">Tárgy leadása</a>
     {% endif %}
     {% if( currentUser.isadmin == 'true') %}
     <a class="btn btn-primary" href="{{ 'lecture_edit' | route({id: lecture.id}) }}">Módosítás</a>

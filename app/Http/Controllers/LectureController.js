@@ -300,6 +300,25 @@ class LectureController {
   }
 
 
+ * ajaxAssignLecture (request, response) {
+    const lectureId = request.param('id')
+    const lecture = yield Lecture.find(lectureId)
+
+    if (lecture) {
+     
+     const userLecture = new UserLecture()   
+    
+     userLecture.user_id = request.currentUser.id
+     userLecture.lecture_id = lectureId
+
+     yield userLecture.save()
+
+      response.send({ success: true })
+    } else {
+      response.send({ success: false })
+    }
+  }
+
 /**
    *
    */
@@ -340,6 +359,44 @@ class LectureController {
       response.notFound('Lecture not found.')
     }
   }
+
+ * ajaxDropLecture(request, response) {
+    const lectureId = request.param('id')
+    const userId = request.param('user_id')
+    const lecture = yield Lecture.find(lectureId)
+     if (lecture) {
+      var userLectureId = []
+      if(userId != null) {
+          userLectureId = yield Database
+        .table('user_lectures')
+        .where({'user_id': userId,'lecture_id': lectureId})
+        .select('id')
+
+      } else {
+        userLectureId = yield Database
+        .table('user_lectures')
+        .where({'user_id': request.currentUser.id,'lecture_id': lectureId})
+        .select('id')
+      }
+
+      if(userLectureId.length > 0) {
+        const userLecture = yield UserLecture.find(userLectureId[0].id)
+
+        yield userLecture.delete()
+        response.send({ success: true })
+        return
+      } else {
+        response.send({ success: false })
+        return
+      }
+
+    } else {
+     response.send({ success: false })
+     return
+    }
+       
+  }
+
 
 }
 

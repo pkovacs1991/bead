@@ -38,3 +38,11 @@ Route.get('/lecture/:id/delete', 'LectureController.doDelete').as('lecture_delet
 Route.get('/lecture/assign/:id', 'LectureController.assignLecture').as('assign_lecture')
 Route.get('/lecture/drop/:id', 'LectureController.dropLecture').as('drop_lecture')
 Route.get('/lecture/drop/:id/:user_id', 'LectureController.dropLecture').as('drop_user_lecture')
+
+Route.group('ajax', function () {
+
+  Route.post('/login', 'UserController.ajaxLogin')
+  Route.get('/lecture/drop/:id/:user_id', 'LectureController.ajaxDropLecture')
+  Route.get('/lecture/drop/:id', 'LectureController.ajaxDropLecture')
+  Route.get('/lecture/assign/:id', 'LectureController.ajaxAssignLecture')
+}).prefix('/ajax')

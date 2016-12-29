@@ -182,6 +182,26 @@ class UserController {
 	
     response.route('profile')
   }
+
+
+  /**
+   *
+   */
+  * ajaxLogin(request, response) {
+    const username = request.input('username')
+    const password = request.input('password')
+	
+    try {
+      const login = yield request.auth.attempt(username, password) 
+      if (login) {
+        response.send({ success: true })
+        return
+      }
+    } 
+    catch (err) {
+      response.send({ success: false })
+    }
+  }
 }
 
 module.exports = UserController
